@@ -1,10 +1,5 @@
 .git
-*.md
-!README.md
-LICENSE
 kubernetes/
-poc-plan.md
-poc-report.md
 tests/
 docs/
 __pycache__/
