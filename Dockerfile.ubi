@@ -3,26 +3,22 @@ FROM registry.access.redhat.com/ubi9/python-312
 WORKDIR /opt/app-root/src
 
 # Copy dependency files first for layer caching
-COPY requirements.txt pyproject.toml ./
+COPY requirements.txt ./
 
 # Install core dependencies + FastAPI/uvicorn for the PoC wrapper
-# Note: continuum requires Python 3.13+ but runs on 3.12 with minor compat
 RUN pip install --no-cache-dir \
     -r requirements.txt \
     fastapi \
-    uvicorn[standard] && \
-    pip install --no-cache-dir -e .
+    uvicorn[standard]
 
-# Copy application source
+# Copy all application source and metadata files
 COPY src/ ./src/
 COPY poc_api.py ./
 COPY scripts/ ./scripts/
+COPY pyproject.toml README.md LICENSE NOTICE ./
 
-# Copy remaining files needed by setup
-COPY README.md LICENSE NOTICE ./
-
-# Re-install package in editable mode now that source is present
-RUN pip install --no-cache-dir -e . --no-deps
+# Install the package in non-editable mode
+RUN pip install --no-cache-dir . --no-deps
 
 # OpenShift compatibility
 RUN chgrp -R 0 /opt/app-root && chmod -R g=u /opt/app-root
