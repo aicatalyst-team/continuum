@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: continuum
+  namespace: poc-continuum
+  labels:
+    app: continuum
+    autopoc.io/project: continuum
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: continuum
+  template:
+    metadata:
+      labels:
+        app: continuum
+    spec:
+      containers:
+        - name: continuum
+          image: quay.io/aicatalyst/continuum:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SESSION_ENABLED
+              value: "true"
+            - name: SESSION_REDIS_HOST
+              value: "redis"
+            - name: SESSION_REDIS_PORT
+              value: "6379"
+            - name: SESSION_REDIS_PASSWORD
+              value: ""
+            - name: MEMORY_ENABLED
+              value: "false"
+            - name: LANGFUSE_ENABLED
+              value: "false"
+            - name: TEMPORAL_ENABLED
+              value: "false"
+            - name: OPENAI_API_KEY
+              value: "placeholder-not-needed-for-poc"
+            - name: DEFAULT_LLM_MODEL
+              value: "gpt-4o-mini"
+            - name: LOG_LEVEL
+              value: "INFO"
+            - name: ENVIRONMENT
+              value: "production"
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: continuum
+  namespace: poc-continuum
+  labels:
+    app: continuum
+    autopoc.io/project: continuum
+spec:
+  type: ClusterIP
+  selector:
+    app: continuum
+  ports:
+    - port: 8080
+      targetPort: 8080
