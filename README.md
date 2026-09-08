@@ -1,4 +1,10 @@
-<div align="center">
+> [!WARNING]
+> **This repository is archived.**
+>
+> Archived on 2026-09-08 by the AI Catalyst Platform Team.
+> It is read-only and no longer maintained.
+
+---<div align="center">
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/continuum-logo-dark.png" />
